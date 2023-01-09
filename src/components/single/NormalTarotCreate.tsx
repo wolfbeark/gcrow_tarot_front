@@ -1,17 +1,21 @@
 /* eslint-disable */
 import React, {useState, Dispatch, SetStateAction} from 'react'
 import styled from 'styled-components';
-import {HorCenterDiv, VerCenterDiv} from '../../CommonStyles';
-import {motion} from 'framer-motion';
+import {
+  ErrorBottomBox, 
+  HorCenterDiv, 
+  VerCenterDiv,
+  BackBtnBox,
+  ErrorBottomVar
+} from '../../CommonStyles';
+import {motion, AnimatePresence} from 'framer-motion';
 
 import {
   tarotDeckTypeNameArr,
-  tarotDeckTypeCountArr
+  tarotDeckTypeCountArr,
+  errorTypeContentArr
 } from '../../DefaultData';
-
-import{
-  BackBtnBox
-} from '../../CommonStyles';
+import SingleNormalDraw from './SingleNormalDraw';
 
 interface INormalTarotCreate {
     setDrawStep : Dispatch<SetStateAction<boolean>>,
@@ -21,6 +25,7 @@ interface INormalTarotCreate {
 const TarotCreateContainer = styled(HorCenterDiv)`
   width: 100%;
   height: 90%;
+  //position: relative;
   background-color: ${(props) => props.theme.homeCenterContentColor};
 `
 const QCardCountPannel = styled(VerCenterDiv)`
@@ -151,6 +156,24 @@ const CustomBorderLine = styled(motion.div)`
   background-color: ${(props) => props.theme.homeLeftBtnBoxColor};
 `
 
+const NextBtn = styled(BackBtnBox)`
+  width: 30%;
+  height: 15%;
+  font-weight: 600;
+  position: relative;
+`
+
+const ErorrPanel = styled(HorCenterDiv)`
+  width: 50%;
+  height: 15%;
+  border-radius: ${(props) => props.theme.defaultBorderRadius};
+  background-color: ${(props) => props.theme.homeLeftBackColor};
+  position: absolute;
+  left: 25%;
+  bottom: 5%;
+`
+
+
 const PreviewBtnVar = {
   active:{
     backgroundColor: `rgba(126, 214, 223, 1)`
@@ -180,6 +203,7 @@ function NormalTarotCreate(props : INormalTarotCreate) {
 
   // Flag
   const [firstOver, setFirstOver] = useState<boolean>(false);
+  const [secondOver, setSecondOver] = useState<boolean>(false);
 
   // Values
   const [qCountValue, setQCountValue] = useState<string>('');
@@ -188,6 +212,9 @@ function NormalTarotCreate(props : INormalTarotCreate) {
   // Option
   const [activeModal, setActiveModal] = useState<boolean>(false);
   const [isSelectPreview, setIsSelectPreview] = useState<boolean>(true);
+
+  const [errorType, setErrorType] = useState<number>(-1);
+  const [errMessage, setErrMessage] = useState<string>("");
 
   const onActiveModal = (e : React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -209,7 +236,28 @@ function NormalTarotCreate(props : INormalTarotCreate) {
     e.preventDefault();
     props.setOracleType(-1);
     props.setDrawStep(false);
+  }
 
+  const freeValidator = () : boolean => {
+    let _value = Number(qCountValue);
+    if(_value <= 0 || _value > 78) return false;
+    return true;
+  }
+
+  const activeNextBtn = (e : React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    let _flag : boolean = freeValidator();
+    if(!_flag){
+      setErrorType(0);
+      setErrMessage(errorTypeContentArr[0]);
+      setQCountValue('');
+      setTimeout(()=>{
+        setErrorType(-1);
+        setErrMessage("");
+      }, 2000)
+      return;
+    }
+      setFirstOver(true);
   }
   return (
     <TarotCreateContainer>
@@ -237,6 +285,11 @@ function NormalTarotCreate(props : INormalTarotCreate) {
                 max={78}
                 value={qCountValue}
                 onChange={onChangeCountHandler}
+                readOnly={
+                  deckType !== 0
+                  ? true
+                  : false
+                }
               />
                 {
                   activeModal === true 
@@ -300,16 +353,39 @@ function NormalTarotCreate(props : INormalTarotCreate) {
                 </PreviewBtn>
               </QCountPreviewBox>
             </QCountInputBox>
+            <NextBtn
+              variants={BtnVar}
+              whileHover={BtnVar.hover}
+              whileTap={BtnVar.click}
+              onClick={activeNextBtn}
+            >
+              NEXT
+            </NextBtn>
           </QInCardCountPannel>
-          <BackBtnBox
-            variants={BtnVar}
-            whileHover={BtnVar.hover}
-            whileTap={BtnVar.click}
-            onClick={activeBackBtn}
-          >
-            BACK
-          </BackBtnBox>
         </QCardCountPannel>
+      }
+      {
+        (firstOver
+        && secondOver === false)
+        &&
+        <SingleNormalDraw 
+          qCountValue={qCountValue}
+          setQCountValue={setQCountValue}
+        />
+      }
+      {
+        errorType !== -1
+        &&
+        <AnimatePresence>
+          <ErrorBottomBox
+            variants={ErrorBottomVar}
+            initial={ErrorBottomVar.initial}
+            animate={ErrorBottomVar.animate}
+            exit={ErrorBottomVar.end}
+          >
+            {errMessage}
+          </ErrorBottomBox>        
+        </AnimatePresence>
       }
     </TarotCreateContainer>
   )

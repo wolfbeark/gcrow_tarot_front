@@ -86,3 +86,29 @@ export const BackBtnBox = styled(HorCenterDiv)`
         color : ${(props) => props.theme.homeLeftBtnTextColor};
     }
 `
+
+// Common Error Bottom
+export const ErrorBottomBox = styled(HorCenterDiv)`
+    width: 50%;
+    height: 15%;
+    border-radius: ${(props) => props.theme.defaultBorderRadius};
+    background-color: ${(props) => props.theme.homeLeftBackColor};
+    position: absolute;
+    left: 25%;
+    bottom: 5%;
+    box-shadow : inset 0 0 5px 1px ${(props) => props.theme.homeLeftBtnColor};
+`
+export const ErrorBottomVar = {
+    initial :{
+        y : 100,
+        opacity: 0,
+    },
+    animate : {
+        y : 0,
+        opacity: 1,
+    },
+    end : {
+        y: -50,
+        opacity: 0
+    }
+}

@@ -33,3 +33,6 @@ export const tarotDeckTypeCountArr : number[] = [
     7,
     10
 ]
+export const errorTypeContentArr : string[] = [
+    "1에서 78까지의 수를 입력하여 주십시오"
+]
